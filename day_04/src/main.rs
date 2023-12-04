@@ -58,7 +58,7 @@ fn count_cards(cards:&Vec<Card>, begin_index:usize, end_index:usize)->u32{
     while i < end_index{
         let matches= cards[i].count_matches();
         // println!("index = {} with {} matches ",i+1, matches);
-        if matches> 1 {
+        if matches>= 1 {
             // check what happens here
             let new_begin_index = i+1;
             let new_end_index = new_begin_index + matches as usize;
@@ -72,7 +72,7 @@ fn count_cards(cards:&Vec<Card>, begin_index:usize, end_index:usize)->u32{
         count+=1;
         i+= 1;
     }
-    count+1
+    count
 }
 
 fn main() {
