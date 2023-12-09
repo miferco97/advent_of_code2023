@@ -28,7 +28,7 @@ fn compute_minimun(seq: &Sequence, append_right: bool) -> i64 {
     }
 
     let mut new_value = 0;
-    if append_right{
+    if append_right {
         for i in 1..(sequences.len() + 1) {
             let index = sequences.len() - i;
             new_value += sequences[index].last().unwrap();
@@ -36,9 +36,8 @@ fn compute_minimun(seq: &Sequence, append_right: bool) -> i64 {
     } else {
         for i in 1..(sequences.len() + 1) {
             let index = sequences.len() - i;
-            new_value = sequences[index].first().unwrap()- new_value;
+            new_value = sequences[index].first().unwrap() - new_value;
         }
-
     }
     new_value
 }
@@ -66,8 +65,12 @@ fn main() {
     let filename: &str = args[1].as_str();
     let content = fs::read_to_string(filename).expect("Error reading the file");
     let sequences = parse_content(&content);
-    let predicted = sequences.iter().fold(0, |acc, x| acc + compute_minimun(&x,true));
+    let predicted = sequences
+        .iter()
+        .fold(0, |acc, x| acc + compute_minimun(&x, true));
     println!("PART 1 : {predicted}");
-    let predicted = sequences.iter().fold(0, |acc, x| acc + compute_minimun(&x,false));
+    let predicted = sequences
+        .iter()
+        .fold(0, |acc, x| acc + compute_minimun(&x, false));
     println!("PART 2 : {predicted}");
 }
