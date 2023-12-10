@@ -163,6 +163,7 @@ fn find_start(matrix: &mut Matrix<Pipe>) -> (u32, u32) {
     }
     let mut next_node = matrix.at_mut(i, j);
     next_node.end = possible_ends[0];
+    next_node.start = possible_ends[1];
     next_node.status = Status::Pipe;
     // println!("next_node {:?}", next_node);
     (i, j)
@@ -356,7 +357,7 @@ fn extend_matrix(matrix:&mut Matrix<Pipe>)->Matrix<Pipe>{
                 Pipe{pipe_type:PipeType::Horizontal,char:'-',start:Directions::None,end:Directions::None,status: Status::Unknown}
             },
             PipeType::Start => {
-                if elem.end == Directions::East{
+                if elem.end == Directions::East ||elem.start == Directions::East{
                 Pipe{pipe_type:PipeType::Horizontal,char:'-',start:Directions::None,end:Directions::None,status: Status::Unknown}
                 }else{
                 Pipe{pipe_type:PipeType::None,char:'.',start:Directions::None,end:Directions::None,status: Status::Unknown}
@@ -373,7 +374,7 @@ fn extend_matrix(matrix:&mut Matrix<Pipe>)->Matrix<Pipe>{
                 Pipe{pipe_type:PipeType::Vertical,char:'|',start:Directions::None,end:Directions::None,status: Status::Unknown}
             },
             PipeType::Start => {
-                if elem.end == Directions::South{
+                if elem.end == Directions::South || elem.start == Directions::South{
                 Pipe{pipe_type:PipeType::Vertical,char:'|',start:Directions::None,end:Directions::None,status: Status::Unknown}
                 }else{
                 Pipe{pipe_type:PipeType::None,char:'.',start:Directions::None,end:Directions::None,status: Status::Unknown}
@@ -398,6 +399,7 @@ fn extend_matrix(matrix:&mut Matrix<Pipe>)->Matrix<Pipe>{
 
 }
 fn print_matrix(matrix:&Matrix<Pipe>){
+    println!();
     for i in 0..matrix.rows{
     for j in 0..matrix.cols{
         let elem  = matrix.at(i,j);
@@ -416,6 +418,32 @@ fn print_matrix(matrix:&Matrix<Pipe>){
         }
     println!();
     }
+    println!();
+}
+
+
+
+fn reduce_matrix(matrix:&Matrix<Pipe>)->Matrix<Pipe>{
+    // let n_rows_orig= matrix.rows;
+    // let n_cols_orig= matrix.cojs;
+    let n_rows= matrix.rows/2;
+    let n_cols= matrix.cols/2;
+    // println!(" n_rows {n_rows} n_cols {n_cols}");
+    let mut new_matrix:Matrix<Pipe> = Matrix::new(n_rows, n_cols, Pipe{pipe_type:PipeType::None,char:'.',start:Directions::None,end:Directions::None,status: Status::Unknown});
+
+    for i in 0..n_rows{
+    for j in 0..n_cols{
+        let new_index_i = i*2;
+        let new_index_j = j*2;
+        // println!( "i : {}, j : {}" ,new_index_i,new_index_j);
+
+        let elem = matrix.at(new_index_i, new_index_j).clone();
+        let e = new_matrix.at_mut(i, j);
+        *e = elem;
+    }
+    }
+    new_matrix
+
 }
 
 
@@ -431,10 +459,12 @@ fn main() {
     let mut matrix = extend_matrix(&mut matrix);
 
     let result = traverse_pipes(&mut matrix);
-    print_matrix(&matrix);
+    // print_matrix(&matrix);
     println!("Part 1: N_length {}", result);
     let result = search_inside_and_outside_cells(&mut matrix);
-    print_matrix(&matrix);
-    println!("Part 2: N_inside_cells {}", result);
+    // print_matrix(&matrix);
+    let mut reduced = reduce_matrix(&matrix);
+    print_matrix(&reduced);
+    println!("Part 2: N_inside_cells {}", count_cells_unknown(&mut reduced));
 
 }
