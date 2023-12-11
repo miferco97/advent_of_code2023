@@ -4,14 +4,10 @@ use std::process::exit;
 
 use day_11::*;
 
-fn parse_content(str: &str) -> Matrix<char> {
-    Matrix::new_from_str(str)
-}
-
 // row, col expansions
-fn count_expansions(matrix: &Matrix<char>) -> (Vec<i64>, Vec<i64>) {
-    let mut row_indices: Vec<i64> = Vec::new();
-    let mut col_indices: Vec<i64> = Vec::new();
+fn count_expansions(matrix: &Matrix<char>) -> (Vec<u64>, Vec<u64>) {
+    let mut row_indices: Vec<u64> = Vec::new();
+    let mut col_indices: Vec<u64> = Vec::new();
     for i in 0..matrix.rows {
         if matrix.row(i).iter().find(|&&x| *x == '#').is_none() {
             row_indices.push(1);
@@ -32,8 +28,8 @@ fn count_expansions(matrix: &Matrix<char>) -> (Vec<i64>, Vec<i64>) {
 fn dist_between_stars(
     star1: (i64, i64),
     star2: (i64, i64),
-    row_expansions: &Vec<i64>,
-    col_expansions: &Vec<i64>,
+    row_expansions: &Vec<u64>,
+    col_expansions: &Vec<u64>,
     expansion: u64,
 ) -> u64 {
     let (x1, y1) = star1;
@@ -47,18 +43,11 @@ fn dist_between_stars(
     let min_j = std::cmp::min(y1, y2) as usize;
     let max_j = std::cmp::max(y1, y2) as usize;
 
-    let mut horizontal_expansion = 0;
-    let mut vertical_expansion = 0;
-    for i in min_i..max_i {
-        horizontal_expansion += row_expansions[i] as u64;
-    }
-    for j in min_j..max_j {
-        vertical_expansion += col_expansions[j] as u64;
-    }
-
+    let horizontal_expansion = &row_expansions[min_i..max_i].iter().sum::<u64>();
+    let vertical_expansion = &col_expansions[min_j..max_j].iter().sum::<u64>();
     let dist = (x1 - x2).abs() + (y1 - y2).abs();
-    let dist = dist as u64 + (horizontal_expansion + vertical_expansion) * expansion;
-    dist
+
+    dist as u64 + (horizontal_expansion + vertical_expansion) * expansion
 }
 
 fn find_stars(matrix: &Matrix<char>) -> Vec<(i64, i64)> {
@@ -75,8 +64,8 @@ fn find_stars(matrix: &Matrix<char>) -> Vec<(i64, i64)> {
 
 fn compute_distances_to_all_stars(
     stars: &Vec<(i64, i64)>,
-    row_expansions: &Vec<i64>,
-    col_expansions: &Vec<i64>,
+    row_expansions: &Vec<u64>,
+    col_expansions: &Vec<u64>,
     expansion: u64,
 ) -> u64 {
     let mut dist = 0;
@@ -102,8 +91,7 @@ fn main() {
     }
     let filename: &str = args[1].as_str();
     let content = fs::read_to_string(filename).expect("Error reading the file");
-    let matrix = parse_content(&content);
-    println!("{}", matrix);
+    let matrix = Matrix::new_from_str(&content);
     let (row_expansions, col_expansions) = count_expansions(&matrix);
     let stars = find_stars(&matrix);
     let dist_1 = compute_distances_to_all_stars(&stars, &row_expansions, &col_expansions, 1);
