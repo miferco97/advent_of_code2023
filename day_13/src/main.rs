@@ -15,20 +15,76 @@ fn equal_vecs<T: PartialEq>(v1: &Vec<T>, v2: &Vec<T>) -> bool {
     }
     true
 }
-// row, col expansions
-fn find_mirrors(matrix: &Matrix<char>) -> u64 {
-    // cols first
-    let mut col_mirror = 0;
-    for i in 0..matrix.cols-1 {
-        if equal_vecs(&matrix.col(i), &matrix.col(i+1)) {
-            col_mirror = i;
-            break;
+
+fn find_mirrors(matrix: &Matrix<char>, axis: u32) -> Option<u64> {
+    let n_dims = match axis {
+        0 => matrix.rows,
+        1 => matrix.cols,
+        _ => panic!("axis not defined"),
+    };
+
+    let mut candidates: Vec<u32> = Vec::new();
+
+    for i in 0..n_dims - 1 {
+        let equal;
+        if axis == 0 {
+            equal = equal_vecs(&matrix.row(i), &matrix.row(i + 1));
+        } else {
+            equal = equal_vecs(&matrix.col(i), &matrix.col(i + 1));
+        }
+        if equal {
+            candidates.push(i);
         }
     }
-    println!("col_mirror: {}", col_mirror);
-    0
+
+    for candidate in candidates {
+        let mut valid = true;
+        let dist_right = n_dims - 1 - (candidate + 1);
+        let max_dist = (candidate).min(dist_right);
+        // println!(
+        //     "i {candidate}, dist_left: {candidate}, dist_right:{dist_right}, max_dist: {max_dist}"
+        // );
+        for i in (candidate - max_dist)..(candidate) {
+            let index0 = i;
+            let dist = candidate-i;
+            let index1 = candidate+1 + dist;
+            // println!("i : {} j: {}",index0,index1);
+            let equal;
+            if axis == 0 {
+                equal = equal_vecs(&matrix.row(index0), &matrix.row(index1));
+            } else {
+                equal = equal_vecs(&matrix.col(index0), &matrix.col(index1));
+            }
+            if !equal {
+                // println!("not equal");
+                valid = false;
+                break;
+            }
+        }
+        if valid {
+            return Some(candidate as u64 + 1);
+        }
+    }
+
+    None
 }
 
+fn compute_mirrors(matrix_vec: &Vec<Matrix<char>>) -> u64{
+    let mut value = 0;
+    for matrix in matrix_vec {
+        if let Some(t) = find_mirrors(&matrix, 1) {
+            value+=t;
+        }
+        else if let Some(t) = find_mirrors(&matrix, 0) {
+            value+=t*100;
+        }
+        else {
+             println!("\n no mirror \n{}",matrix);
+        }
+    }
+    value
+
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -42,11 +98,8 @@ fn main() {
     for mat_str in content.split("\n\n") {
         matrix_vec.push(Matrix::new_from_str(mat_str));
     }
-    for matrix in matrix_vec {
-        let part1 = find_mirrors(&matrix);
-    }
-    // let matrix = Matrix::new_from_str(&content);
+    let part1 = compute_mirrors(&matrix_vec);
+    println!("PART_1 : {}", part1);
 
-    // println!("PART_1 : {}", dist_1);
     // println!("PART_2 : {}", dist_2);
 }
