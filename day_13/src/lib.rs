@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::{Index, IndexMut};
 
+#[derive(Clone)]
 pub struct Matrix<T> {
     pub data: Vec<T>,
     pub rows: u32,
