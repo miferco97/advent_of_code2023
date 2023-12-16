@@ -102,9 +102,26 @@ fn count_energized(energized_matrix:&Matrix<usize>)->u64{
     energized_matrix.data.iter().filter(|x| **x>0).fold(0, |acc,_x| acc+1)
 }
 
-// fn test_multiple_options(cave_map:&Matrix<char>)->u64{
+fn test_multiple_options(cave_map:&Matrix<char>)->u64{
+    let mut possible_beams = Vec::new();
+    for i in 0..cave_map.rows{
+        possible_beams.push(Laser{i: i as i64,j: -1,direction: Direction::Right});
+        possible_beams.push(Laser{i: i as i64,j: cave_map.rows as i64,direction: Direction::Left});
+    }
+    for j in 0..cave_map.cols{
+        possible_beams.push(Laser{i: -1 as i64,j: j as i64, direction: Direction::Down});
+        possible_beams.push(Laser{i: cave_map.rows as i64 ,j: j as i64, direction: Direction::Up});
+    }
+    let mut max = 0;
+    for start in possible_beams{
+        let count = count_energized(&energize_map(cave_map, start));
+        if count > max{
+            max=count;
+        }
+    }
+    max
 
-// }
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -119,6 +136,8 @@ fn main() {
     let energize_map = energize_map(&matrix, Laser{i:0,j : -1,direction : Direction::Right});
     // println!("{}",energize_map);
     println!("PART 1: {}",count_energized(&energize_map));
+    println!("PART 2: {}",test_multiple_options(&matrix));
+
 
 
 }
