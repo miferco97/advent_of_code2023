@@ -35,6 +35,17 @@ impl<T: Clone + fmt::Display> Matrix<T> {
         }
         row
     }
+
+    pub fn substitute_row(&mut self, i: u32, row: Vec<T>) {
+        for j in 0..self.cols {
+            self.data[(i * self.cols + j) as usize] = row[j as usize].clone();
+        }
+    }
+    pub fn substitute_col(&mut self, j: u32, col: Vec<T>) {
+        for i in 0..self.rows {
+            self.data[(i * self.cols + j) as usize] = col[i as usize].clone();
+        }
+    }
 }
 
 impl Matrix<char> {
