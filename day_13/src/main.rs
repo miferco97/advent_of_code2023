@@ -111,6 +111,7 @@ fn check_discrepancy_change(
         .filter(|x| !previous_reflections.contains(x))
         .collect();
     if different_reflections.len() == 1 {
+        // print!("SMACK discrepancy [{},{}] : ", discrepancy.0, discrepancy.1);
         return Some(*different_reflections[0]);
     } else if different_reflections.len() > 1 {
         panic!("more than one different reflection");
@@ -179,10 +180,12 @@ fn compute_mirrors(
             let vertical = find_symmetry(matrix, 1);
             let horizontal = find_symmetry(matrix, 0);
             if vertical.len() == 1 {
+                // println!("vertical: {}", vertical[0]);
                 value += vertical[0];
             }
             if horizontal.len() == 1 {
                 value += 100 * horizontal[0];
+                // println!("horizontal: {}", horizontal[0]);
             }
         }
         return value;
@@ -193,10 +196,12 @@ fn compute_mirrors(
     for matrix in matrix_vec {
         let mut computed = 0;
         if let Some(t) = find_mirrors(matrix, 1) {
+            // println!("vertical: {}", t);
             computed += 1;
             value += t;
         }
         if let Some(t) = find_mirrors(matrix, 0) {
+            // println!("horizontal: {}", t);
             computed += 1;
             value += 100 * t;
         }
